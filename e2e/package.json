@@ -1,0 +1,12 @@
+{
+  "name": "product-import-e2e",
+  "private": true,
+  "description": "E2E-тесты: весь сценарий в браузере против запущенного docker compose",
+  "scripts": {
+    "test": "playwright test",
+    "install-browser": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.1"
+  }
+}

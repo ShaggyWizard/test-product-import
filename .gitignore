@@ -9,3 +9,4 @@ frontend/dist/
 frontend/.angular/
 test-results/
 playwright-report/
+e2e/node_modules/
