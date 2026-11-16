@@ -12,7 +12,9 @@ import { Observable, catchError, map, of, startWith, switchMap } from 'rxjs';
 
 import { errorMessage } from '../../models/api-error.model';
 import { Product, ProductImage } from '../../models/product.model';
+import { ImportService } from '../../services/import.service';
 import { ProductService } from '../../services/product.service';
+import { ImportStatusComponent } from '../../shared/import-status/import-status.component';
 
 interface DetailState {
   loading: boolean;
@@ -34,6 +36,7 @@ interface DetailState {
     MatChipsModule,
     MatTableModule,
     MatProgressBarModule,
+    ImportStatusComponent,
   ],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
@@ -41,6 +44,7 @@ interface DetailState {
 })
 export class ProductDetailComponent {
   private readonly productService = inject(ProductService);
+  private readonly importService = inject(ImportService);
 
   /** :id из маршрута (withComponentInputBinding). */
   readonly id = input.required<string>();
@@ -49,6 +53,9 @@ export class ProductDetailComponent {
   readonly selectedImage = signal<ProductImage | null>(null);
 
   readonly attributeColumns = ['key', 'value'];
+
+  /** Последний импорт: прогресс, если он ещё идёт, и отчёт об ошибках после. */
+  readonly lastImport$ = this.importService.watchLatest().pipe(catchError(() => of(null)));
 
   readonly state$: Observable<DetailState> = toObservable(this.id).pipe(
     switchMap((id) => {

@@ -13,5 +13,10 @@ export const routes: Routes = [
     title: 'Карточка товара',
     loadComponent: () => import('./pages/product-detail/product-detail.component').then((m) => m.ProductDetailComponent),
   },
+  {
+    path: 'import',
+    title: 'Импорт товаров',
+    loadComponent: () => import('./pages/import/import.component').then((m) => m.ImportComponent),
+  },
   { path: '**', redirectTo: 'products' },
 ];

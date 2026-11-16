@@ -15,6 +15,10 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
           <mat-icon>inventory_2</mat-icon>
           Товары
         </a>
+        <a mat-button routerLink="/import" routerLinkActive="active">
+          <mat-icon>upload_file</mat-icon>
+          Импорт
+        </a>
       </nav>
     </mat-toolbar>
     <main class="content">

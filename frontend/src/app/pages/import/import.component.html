@@ -1,0 +1,69 @@
+<h1>Импорт товаров</h1>
+
+<section class="upload">
+  <label
+    class="dropzone"
+    [class.over]="dragOver()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="dragOver.set(false)"
+    (drop)="onDrop($event)"
+  >
+    <input
+      type="file"
+      class="file-input"
+      accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      (change)="onFileInput($event)"
+    />
+    <mat-icon class="drop-icon">upload_file</mat-icon>
+    @if (selectedFile(); as file) {
+      <span class="drop-title">{{ file.name }}</span>
+      <span class="muted">{{ (file.size / 1024).toFixed(0) }} КБ · нажмите, чтобы выбрать другой</span>
+    } @else {
+      <span class="drop-title">Перетащите .xlsx сюда или нажмите, чтобы выбрать</span>
+      <span class="muted">До 10 МБ. Столбцы: «Внешний код», «Наименование», «Цена: Цена продажи», «Доп. поле: …»</span>
+    }
+  </label>
+
+  @if (fileError(); as error) {
+    <div class="error-box" role="alert">{{ error }}</div>
+  }
+
+  <div class="actions">
+    <button mat-flat-button type="button" [disabled]="!selectedFile()" (click)="start()">
+      <mat-icon>play_arrow</mat-icon>
+      Импортировать
+    </button>
+    <a mat-button routerLink="/products">К списку товаров</a>
+  </div>
+</section>
+
+@if (view$ | async; as view) {
+  <section class="result" aria-live="polite">
+    @switch (view.phase) {
+      @case ('uploading') {
+        <h2>Загрузка файла</h2>
+        <mat-progress-bar mode="determinate" [value]="view.percent" />
+        <p class="muted">{{ view.percent }}%</p>
+      }
+      @case ('job') {
+        <h2>Импорт</h2>
+        <app-import-status [job]="view.job" />
+        @if (view.job.status === 'done') {
+          <a mat-stroked-button routerLink="/products" class="to-list">
+            <mat-icon>inventory_2</mat-icon>
+            Смотреть товары
+          </a>
+        }
+      }
+      @case ('error') {
+        <div class="error-box" role="alert">{{ view.error }}</div>
+      }
+      @case ('idle') {
+        @if (view.last; as last) {
+          <h2>Последний импорт</h2>
+          <app-import-status [job]="last" [compact]="true" />
+        }
+      }
+    }
+  </section>
+}

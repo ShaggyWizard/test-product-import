@@ -76,6 +76,14 @@
           <p class="muted">Дополнительных атрибутов нет.</p>
         }
 
+        @if (lastImport$ | async; as job) {
+          <h2>Последний импорт</h2>
+          <div class="last-import">
+            <app-import-status [job]="job" [compact]="true" />
+            <a mat-button routerLink="/import">Новый импорт</a>
+          </div>
+        }
+
         <p class="muted dates">
           Добавлен {{ product.createdAt | date: 'd MMMM y, HH:mm' }} · обновлён {{ product.updatedAt | date: 'd MMMM y, HH:mm' }}
         </p>

@@ -123,6 +123,20 @@
   overflow-wrap: anywhere;
 }
 
+.last-import {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+
+  app-import-status {
+    align-self: stretch;
+  }
+}
+
 .dates {
   margin-top: 24px;
   font-size: 12px;

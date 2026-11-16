@@ -1,0 +1,87 @@
+@let j = job();
+
+<div class="status" [class]="'status-' + j.status">
+  <div class="head">
+    <span class="badge">
+      @switch (j.status) {
+        @case ('done') { <mat-icon inline>check_circle</mat-icon> }
+        @case ('failed') { <mat-icon inline>error</mat-icon> }
+        @default { <mat-icon inline>hourglass_top</mat-icon> }
+      }
+      {{ statusText() }}
+    </span>
+    <span class="file" [title]="j.fileName">{{ j.fileName }}</span>
+    <span class="muted when">{{ j.createdAt | date: 'd MMM, HH:mm:ss' }}</span>
+  </div>
+
+  @if (running()) {
+    <mat-progress-bar [mode]="progressMode()" [value]="j.progress" aria-label="Прогресс импорта" />
+    <p class="muted rows">
+      @if (j.totalRows > 0) {
+        Обработано {{ j.processedRows }} из {{ j.totalRows }} строк · {{ j.progress }}%
+      } @else {
+        Ждём воркер…
+      }
+    </p>
+  }
+
+  @if (j.status === 'failed' && j.failureReason) {
+    <div class="error-box" role="alert">{{ j.failureReason }}</div>
+  }
+
+  @if (j.status === 'done' || j.status === 'failed') {
+    <dl class="totals">
+      <div><dt>Строк</dt><dd>{{ j.totalRows }}</dd></div>
+      <div><dt>Создано</dt><dd>{{ j.created }}</dd></div>
+      <div><dt>Обновлено</dt><dd>{{ j.updated }}</dd></div>
+      <div [class.bad]="j.errors.length"><dt>Ошибок</dt><dd>{{ j.errors.length }}</dd></div>
+      <div [class.warn]="j.warnings.length"><dt>Предупреждений</dt><dd>{{ j.warnings.length }}</dd></div>
+    </dl>
+  }
+
+  @if (j.errors.length || j.warnings.length) {
+    <mat-accordion multi class="issues">
+      @if (j.errors.length) {
+        <mat-expansion-panel [expanded]="!compact()">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Ошибки: строки не записаны ({{ j.errors.length }})</mat-panel-title>
+          </mat-expansion-panel-header>
+          <ng-container *ngTemplateOutlet="issuesTable; context: { $implicit: j.errors }" />
+        </mat-expansion-panel>
+      }
+      @if (j.warnings.length) {
+        <mat-expansion-panel [expanded]="!compact() && !j.errors.length">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Предупреждения: записано с замечаниями ({{ j.warnings.length }})</mat-panel-title>
+          </mat-expansion-panel-header>
+          <ng-container *ngTemplateOutlet="issuesTable; context: { $implicit: j.warnings }" />
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</div>
+
+<ng-template #issuesTable let-issues>
+  <div class="table-scroll">
+    <table mat-table [dataSource]="issues" class="issues-table">
+      <ng-container matColumnDef="row">
+        <th mat-header-cell *matHeaderCellDef>Строка</th>
+        <td mat-cell *matCellDef="let i" class="num">{{ i.row }}</td>
+      </ng-container>
+      <ng-container matColumnDef="externalCode">
+        <th mat-header-cell *matHeaderCellDef>Внешний код</th>
+        <td mat-cell *matCellDef="let i" class="code">{{ i.externalCode ?? '—' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="field">
+        <th mat-header-cell *matHeaderCellDef>Столбец</th>
+        <td mat-cell *matCellDef="let i">{{ i.field ?? '—' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="message">
+        <th mat-header-cell *matHeaderCellDef>Что не так</th>
+        <td mat-cell *matCellDef="let i" class="message">{{ i.message }}</td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="issueColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: issueColumns"></tr>
+    </table>
+  </div>
+</ng-template>
