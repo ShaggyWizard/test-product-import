@@ -15,10 +15,8 @@ use App\Service\Auth\AuthService;
 use App\Service\Import\ImageDownloader;
 use App\Service\Import\ImportUploadValidator;
 use App\Service\Import\UploadStorage;
-use Doctrine\DBAL\Configuration as DbalConfiguration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
@@ -42,13 +40,8 @@ return [
         /** @var Settings $s */
         $s = $c->get(Settings::class);
 
-        // Служебную таблицу миграций не сравниваем со схемой сущностей.
-        $config = new DbalConfiguration();
-        $config->setSchemaAssetsFilter(
-            static fn(string|AbstractAsset $asset): bool => ($asset instanceof AbstractAsset ? $asset->getName() : $asset)
-                !== 'doctrine_migration_versions',
-        );
-
+        // Без фильтра схемы: Doctrine Migrations должна видеть свою таблицу doctrine_migration_versions,
+        // иначе повторный migrate пытается создать её снова и падает.
         return DriverManager::getConnection([
             'driver' => 'pdo_pgsql',
             'host' => $s->dbHost,
@@ -57,7 +50,7 @@ return [
             'user' => $s->dbUser,
             'password' => $s->dbPassword,
             'charset' => 'utf8',
-        ], $config);
+        ]);
     }),
 
     EntityManagerInterface::class => factory(static function (ContainerInterface $c): EntityManagerInterface {
