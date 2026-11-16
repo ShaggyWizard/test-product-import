@@ -17,6 +17,10 @@
   gap: 4px;
 }
 
+.spacer {
+  flex: 1;
+}
+
 .active {
   background: var(--mat-sys-secondary-container);
 }

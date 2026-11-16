@@ -1,5 +1,5 @@
 import { registerLocaleData } from '@angular/common';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import localeRu from '@angular/common/locales/ru';
 import { ApplicationConfig, LOCALE_ID, isDevMode, provideZoneChangeDetection } from '@angular/core';
 import { MAT_PAGINATOR_DEFAULT_OPTIONS, MatPaginatorIntl } from '@angular/material/paginator';
@@ -10,6 +10,7 @@ import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 
 import { routes } from './app.routes';
+import { authInterceptor, errorInterceptor } from './auth/auth.interceptor';
 import { RuPaginatorIntl } from './shared/ru-paginator-intl';
 import { ProductsEffects } from './store/products/products.effects';
 import { PRODUCTS_FEATURE_KEY, productsReducer } from './store/products/products.reducer';
@@ -21,7 +22,8 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     // withComponentInputBinding: параметр маршрута :id приходит в компонент как input.
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withFetch()),
+    // Порядок: сначала добавляем токен, затем обрабатываем ошибки ответа (401, 5xx).
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, errorInterceptor])),
     provideAnimationsAsync(),
     provideStore({ [PRODUCTS_FEATURE_KEY]: productsReducer }),
     provideEffects(ProductsEffects),

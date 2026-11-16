@@ -9,13 +9,17 @@ use OpenApi\Attributes as OA;
 /**
  * Общее описание API и схемы ответов. Пути описаны атрибутами прямо в контроллерах.
  */
-#[OA\OpenApi(openapi: '3.1.0')]
+#[OA\OpenApi(openapi: '3.1.0', security: [['bearerAuth' => []]])]
 #[OA\Info(
     version: '1.0.0',
-    description: 'Импорт товаров из .xlsx (асинхронно через очередь), список и карточка товара.',
+    description: 'Импорт товаров из .xlsx (асинхронно через очередь), список и карточка товара. '
+        . 'Все методы, кроме входа, health и документации, требуют JWT: получите его в POST /api/auth/login '
+        . 'и нажмите Authorize.',
     title: 'Product Import API',
 )]
+#[OA\SecurityScheme(securityScheme: 'bearerAuth', type: 'http', bearerFormat: 'JWT', scheme: 'bearer')]
 #[OA\Server(url: '/', description: 'Текущий хост')]
+#[OA\Tag(name: 'Auth', description: 'Вход')]
 #[OA\Tag(name: 'Products', description: 'Товары')]
 #[OA\Tag(name: 'Import', description: 'Импорт из .xlsx')]
 #[OA\Tag(name: 'System', description: 'Служебное')]

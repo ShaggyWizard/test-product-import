@@ -27,5 +27,8 @@
         <env name="DB_NAME" value="products_test" force="true"/>
         <env name="MESSENGER_TRANSPORT_DSN" value="in-memory://" force="true"/>
         <env name="IMPORT_RATE_LIMIT" value="1000" force="true"/>
+        <env name="JWT_SECRET" value="test-secret-test-secret-test-secret-123" force="true"/>
+        <env name="ADMIN_LOGIN" value="admin" force="true"/>
+        <env name="ADMIN_PASSWORD" value="test-password" force="true"/>
     </php>
 </phpunit>

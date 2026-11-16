@@ -1,7 +1,23 @@
-import { expect, test } from '@playwright/test';
+import { Page, expect, test } from '@playwright/test';
 import path from 'node:path';
 
 const fixtures = path.resolve(__dirname, '../../backend/tests/data');
+const LOGIN = process.env['E2E_LOGIN'] ?? 'admin';
+const PASSWORD = process.env['E2E_PASSWORD'] ?? 'admin';
+
+async function signIn(page: Page, returnTo = '/import'): Promise<void> {
+  await page.goto(returnTo);
+  // authGuard отправляет на вход с адресом возврата.
+  await expect(page).toHaveURL(/\/login\?returnUrl=/);
+  await page.getByLabel('Логин').fill(LOGIN);
+  await page.getByLabel('Пароль').fill(PASSWORD);
+  await page.getByRole('button', { name: 'Войти' }).click();
+  await expect(page).toHaveURL(new RegExp(returnTo + '$'));
+}
+
+test.beforeEach(async ({ page }) => {
+  await signIn(page);
+});
 
 /**
  * Основной сценарий: импорт файла-примера → список → поиск → карточка.

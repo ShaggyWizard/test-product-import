@@ -20,6 +20,7 @@ final readonly class HealthController
     #[OA\Get(
         path: '/api/health',
         summary: 'Проверка, что приложение и БД живы',
+        security: [],
         tags: ['System'],
         responses: [
             new OA\Response(response: 200, description: 'Всё работает'),

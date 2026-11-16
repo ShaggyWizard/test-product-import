@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration;
 
+use App\Service\Auth\AuthService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Slim\App;
@@ -28,9 +29,14 @@ abstract class ApiTestCase extends IntegrationTestCase
      * @param array<string, mixed>|null                $json
      * @param array<string, UploadedFileInterface>      $files
      */
-    protected function request(string $method, string $uri, ?array $json = null, array $files = []): ResponseInterface
+    protected function request(string $method, string $uri, ?array $json = null, array $files = [], bool $auth = true): ResponseInterface
     {
         $request = (new ServerRequestFactory())->createServerRequest($method, $uri, ['REMOTE_ADDR' => '10.0.0.1']);
+        if ($auth) {
+            $session = $this->service(AuthService::class)->login('admin', 'test-password');
+            self::assertNotNull($session);
+            $request = $request->withHeader('Authorization', 'Bearer ' . $session['token']);
+        }
         if ($json !== null) {
             $request = $request
                 ->withHeader('Content-Type', 'application/json')

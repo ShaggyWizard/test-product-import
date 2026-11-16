@@ -6,10 +6,12 @@ use App\Config\Settings;
 use App\Entity\ImportJob;
 use App\Entity\Product;
 use App\Http\JsonResponder;
+use App\Http\JwtAuthMiddleware;
 use App\Http\RateLimitMiddleware;
 use App\Logging\StderrLogger;
 use App\Repository\ImportJobRepository;
 use App\Repository\ProductRepository;
+use App\Service\Auth\AuthService;
 use App\Service\Import\ImageDownloader;
 use App\Service\Import\ImportUploadValidator;
 use App\Service\Import\UploadStorage;
@@ -97,6 +99,12 @@ return [
 
     RateLimitMiddleware::class => factory(static fn(ContainerInterface $c): RateLimitMiddleware => new RateLimitMiddleware(
         $c->get('rate_limiter.import'),
+        $c->get(ResponseFactoryInterface::class),
+        $c->get(JsonResponder::class),
+    )),
+
+    JwtAuthMiddleware::class => factory(static fn(ContainerInterface $c): JwtAuthMiddleware => new JwtAuthMiddleware(
+        $c->get(AuthService::class),
         $c->get(ResponseFactoryInterface::class),
         $c->get(JsonResponder::class),
     )),
