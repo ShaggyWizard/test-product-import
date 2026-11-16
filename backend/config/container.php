@@ -7,6 +7,7 @@ use App\Entity\ImportJob;
 use App\Entity\Product;
 use App\Repository\ImportJobRepository;
 use App\Repository\ProductRepository;
+use App\Service\Import\UploadStorage;
 use Doctrine\DBAL\Configuration as DbalConfiguration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -66,6 +67,10 @@ return [
 
         return new EntityManager($connection, $config);
     }),
+
+    UploadStorage::class => factory(
+        static fn (): UploadStorage => new UploadStorage(dirname(__DIR__) . '/var/uploads'),
+    ),
 
     // Репозитории берём у EntityManager, чтобы Doctrine сама их собрала.
     ProductRepository::class => factory(
