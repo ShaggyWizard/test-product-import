@@ -16,6 +16,8 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Slim\Psr7\Factory\ResponseFactory;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
@@ -67,6 +69,8 @@ return [
 
         return new EntityManager($connection, $config);
     }),
+
+    ResponseFactoryInterface::class => factory(static fn (): ResponseFactoryInterface => new ResponseFactory()),
 
     UploadStorage::class => factory(
         static fn (): UploadStorage => new UploadStorage(dirname(__DIR__) . '/var/uploads'),
