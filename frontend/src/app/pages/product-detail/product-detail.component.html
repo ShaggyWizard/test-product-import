@@ -1,0 +1,85 @@
+<a mat-button routerLink="/products" class="back">
+  <mat-icon>arrow_back</mat-icon>
+  К списку товаров
+</a>
+
+@if (state$ | async; as state) {
+  @if (state.loading) {
+    <mat-progress-bar mode="indeterminate" />
+  } @else if (state.error) {
+    <div class="error-box" role="alert">{{ state.error }}</div>
+  } @else if (state.product) {
+    @let product = state.product;
+    <div class="layout">
+      <section class="gallery" aria-label="Изображения товара">
+        @if (mainImage(product); as image) {
+          <img class="main-image" [src]="image.src" [alt]="product.name" />
+          @if (!image.path) {
+            <p class="muted note">Показано по исходной ссылке: локальная копия не скачана.</p>
+          }
+        } @else {
+          <div class="main-image empty-image">
+            <mat-icon>image_not_supported</mat-icon>
+            <span>Нет изображений</span>
+          </div>
+        }
+
+        @if (product.images.length > 1) {
+          <div class="thumbs">
+            @for (image of product.images; track image.id) {
+              <button
+                type="button"
+                class="thumb-button"
+                [class.selected]="image.id === mainImage(product)?.id"
+                (click)="selectedImage.set(image)"
+                [attr.aria-label]="'Изображение ' + ($index + 1)"
+              >
+                <img [src]="image.src" alt="" loading="lazy" />
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="info">
+        <h1>{{ product.name }}</h1>
+
+        <mat-chip-set class="chips">
+          <mat-chip disableRipple>Код: {{ product.externalCode }}</mat-chip>
+          <mat-chip disableRipple>ID {{ product.id }}</mat-chip>
+        </mat-chip-set>
+
+        <div class="price-row">
+          <span class="price">{{ product.price | currency: 'RUB' : 'symbol-narrow' : '1.2-2' }}</span>
+          @if (hasDiscount(product)) {
+            <span class="discount">скидка {{ product.discount | number: '1.0-2' }}&nbsp;%</span>
+          }
+        </div>
+
+        @if (product.description) {
+          <h2>Описание</h2>
+          <p class="description">{{ product.description }}</p>
+        }
+
+        <h2>Характеристики</h2>
+        @if (product.attributes.length) {
+          <table mat-table [dataSource]="product.attributes" class="attributes">
+            <ng-container matColumnDef="key">
+              <td mat-cell *matCellDef="let a" class="attr-key">{{ a.key }}</td>
+            </ng-container>
+            <ng-container matColumnDef="value">
+              <td mat-cell *matCellDef="let a" class="attr-value">{{ a.value }}</td>
+            </ng-container>
+            <tr mat-row *matRowDef="let row; columns: attributeColumns"></tr>
+          </table>
+        } @else {
+          <p class="muted">Дополнительных атрибутов нет.</p>
+        }
+
+        <p class="muted dates">
+          Добавлен {{ product.createdAt | date: 'd MMMM y, HH:mm' }} · обновлён {{ product.updatedAt | date: 'd MMMM y, HH:mm' }}
+        </p>
+      </section>
+    </div>
+  }
+}
