@@ -3,8 +3,14 @@
 declare(strict_types=1);
 
 use App\Config\Settings;
+use App\Entity\ImportJob;
+use App\Entity\Product;
+use App\Repository\ImportJobRepository;
+use App\Repository\ProductRepository;
+use Doctrine\DBAL\Configuration as DbalConfiguration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
@@ -21,6 +27,13 @@ return [
         /** @var Settings $s */
         $s = $c->get(Settings::class);
 
+        // Служебную таблицу миграций не сравниваем со схемой сущностей.
+        $config = new DbalConfiguration();
+        $config->setSchemaAssetsFilter(
+            static fn (string|AbstractAsset $asset): bool => ($asset instanceof AbstractAsset ? $asset->getName() : $asset)
+                !== 'doctrine_migration_versions',
+        );
+
         return DriverManager::getConnection([
             'driver' => 'pdo_pgsql',
             'host' => $s->dbHost,
@@ -29,7 +42,7 @@ return [
             'user' => $s->dbUser,
             'password' => $s->dbPassword,
             'charset' => 'utf8',
-        ]);
+        ], $config);
     }),
 
     EntityManagerInterface::class => factory(static function (ContainerInterface $c): EntityManagerInterface {
@@ -53,4 +66,12 @@ return [
 
         return new EntityManager($connection, $config);
     }),
+
+    // Репозитории берём у EntityManager, чтобы Doctrine сама их собрала.
+    ProductRepository::class => factory(
+        static fn (EntityManagerInterface $em): ProductRepository => $em->getRepository(Product::class),
+    ),
+    ImportJobRepository::class => factory(
+        static fn (EntityManagerInterface $em): ImportJobRepository => $em->getRepository(ImportJob::class),
+    ),
 ];
