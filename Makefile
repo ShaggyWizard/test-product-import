@@ -1,7 +1,7 @@
 DC = docker compose
 APP = $(DC) exec app
 
-.PHONY: help init up down build logs migrate seed test stan cs ps
+.PHONY: help init up down build logs migrate seed deps test stan cs ps
 
 help: ## Список команд
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -33,11 +33,18 @@ migrate: ## Применить миграции
 seed: ## Заполнить БД тестовыми данными
 	$(APP) php bin/console app:seed
 
-test: ## Тесты бэкенда
-	$(APP) vendor/bin/phpunit
+# Боевой образ без dev-зависимостей, поэтому тесты и анализаторы идут в одноразовом контейнере
+# с примонтированным кодом: composer ставит dev-пакеты, БД — тот же сервис db (база products_test).
+DEV = $(DC) run --rm --no-deps -u root -v ./backend:/var/www/app app
+
+deps: ## Поставить dev-зависимости бэкенда (для тестов и анализаторов)
+	$(DEV) composer install --no-interaction --no-progress
+
+test: ## Тесты бэкенда (unit + интеграционные на products_test)
+	$(DEV) vendor/bin/phpunit
 
 stan: ## PHPStan
-	$(APP) vendor/bin/phpstan analyse --memory-limit=512M
+	$(DEV) vendor/bin/phpstan analyse --memory-limit=512M
 
 cs: ## Проверка код-стайла
-	$(APP) vendor/bin/php-cs-fixer fix --dry-run --diff
+	$(DEV) vendor/bin/php-cs-fixer fix --dry-run --diff

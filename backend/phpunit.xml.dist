@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         failOnWarning="true"
+         failOnRisky="true">
+    <testsuites>
+        <testsuite name="unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
+
+    <php>
+        <!-- Отдельная база: тесты не трогают рабочие данные. Очередь — в памяти, RabbitMQ не нужен. -->
+        <env name="APP_ENV" value="test" force="true"/>
+        <env name="DB_NAME" value="products_test" force="true"/>
+        <env name="MESSENGER_TRANSPORT_DSN" value="in-memory://" force="true"/>
+        <env name="IMPORT_RATE_LIMIT" value="1000" force="true"/>
+    </php>
+</phpunit>
