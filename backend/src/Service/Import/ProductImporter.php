@@ -21,9 +21,11 @@ final class ProductImporter
     }
 
     /**
+     * @param array<string, string|null> $imagePaths URL => локальный путь (null — не скачалось); картинки качаются до транзакции
+     *
      * @return bool true — товар создан, false — обновлён
      */
-    public function import(ParsedRow $row): bool
+    public function import(ParsedRow $row, array $imagePaths = []): bool
     {
         $connection = $this->em->getConnection();
         $connection->beginTransaction();
@@ -43,8 +45,12 @@ final class ProductImporter
                 ->setPrice($row->price)
                 ->setDiscount($row->discount);
             $product->syncAttributes($row->attributes);
-            // Путь к файлу заполнит скачивание картинок; у уже скачанных он сохраняется.
-            $product->syncImages(array_fill_keys($row->imageUrls, null));
+            // null — картинку не скачали: ссылка сохраняется, а у ранее скачанной путь не затирается.
+            $urlToPath = [];
+            foreach ($row->imageUrls as $url) {
+                $urlToPath[$url] = $imagePaths[$url] ?? null;
+            }
+            $product->syncImages($urlToPath);
 
             // Товар, атрибуты и картинки уходят в БД разом: либо всё, либо ничего.
             $this->em->flush();

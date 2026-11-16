@@ -21,6 +21,7 @@ final class ImportService
         private readonly XlsxReader $reader,
         private readonly RowMapper $mapper,
         private readonly ProductImporter $importer,
+        private readonly ImageDownloader $images,
         private readonly UploadStorage $storage,
     ) {
     }
@@ -65,7 +66,18 @@ final class ImportService
                         ));
                     } else {
                         $seen[$mapped->row->externalCode] = $rowNumber;
-                        $this->importer->import($mapped->row) ? $job->countCreated() : $job->countUpdated();
+
+                        // Картинки качаем до транзакции товара: сеть медленная, держать открытой транзакцию на это время незачем.
+                        $images = $this->images->download($mapped->row->imageUrls);
+                        foreach ($images['failures'] as $url => $reason) {
+                            $job->addWarning($rowNumber, $code, 'Доп. поле: Ссылки на фото', \sprintf(
+                                'Картинка %s не скачана: %s. Товар сохранён со ссылкой без локальной копии.',
+                                mb_strimwidth($url, 0, 100, '…'),
+                                $reason,
+                            ));
+                        }
+
+                        $this->importer->import($mapped->row, $images['paths']) ? $job->countCreated() : $job->countUpdated();
                     }
                 }
 

@@ -7,6 +7,7 @@ use App\Entity\ImportJob;
 use App\Entity\Product;
 use App\Repository\ImportJobRepository;
 use App\Repository\ProductRepository;
+use App\Service\Import\ImageDownloader;
 use App\Service\Import\UploadStorage;
 use Doctrine\DBAL\Configuration as DbalConfiguration;
 use Doctrine\DBAL\Connection;
@@ -20,6 +21,8 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Slim\Psr7\Factory\ResponseFactory;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 
 use function DI\factory;
 
@@ -71,6 +74,17 @@ return [
     }),
 
     ResponseFactoryInterface::class => factory(static fn (): ResponseFactoryInterface => new ResponseFactory()),
+
+    ImageDownloader::class => factory(static function (Settings $s): ImageDownloader {
+        $http = new NoPrivateNetworkHttpClient(HttpClient::create([
+            'timeout' => $s->imageDownloadTimeout,
+            'max_duration' => $s->imageDownloadTimeout * 3,
+            'max_redirects' => 3,
+            'headers' => ['User-Agent' => 'product-import/1.0', 'Accept' => 'image/*'],
+        ]));
+
+        return new ImageDownloader($http, dirname(__DIR__) . '/public', $s->imageMaxSize);
+    }),
 
     UploadStorage::class => factory(
         static fn (): UploadStorage => new UploadStorage(dirname(__DIR__) . '/var/uploads'),
