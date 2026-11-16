@@ -96,6 +96,34 @@ use OpenApi\Attributes as OA;
     ],
 )]
 #[OA\Schema(
+    schema: 'ImportIssue',
+    properties: [
+        new OA\Property(property: 'row', description: 'Номер строки в файле', type: 'integer', example: 4),
+        new OA\Property(property: 'externalCode', type: 'string', nullable: true),
+        new OA\Property(property: 'field', description: 'Столбец', type: 'string', nullable: true, example: 'Цена: Цена продажи'),
+        new OA\Property(property: 'message', type: 'string', example: 'Цена продажи «сто рублей» не является числом.'),
+    ],
+)]
+#[OA\Schema(
+    schema: 'ImportJob',
+    properties: [
+        new OA\Property(property: 'id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'status', type: 'string', enum: ['pending', 'running', 'done', 'failed']),
+        new OA\Property(property: 'fileName', type: 'string'),
+        new OA\Property(property: 'totalRows', type: 'integer'),
+        new OA\Property(property: 'processedRows', type: 'integer'),
+        new OA\Property(property: 'progress', description: 'Процент, 0–100', type: 'integer'),
+        new OA\Property(property: 'created', type: 'integer'),
+        new OA\Property(property: 'updated', type: 'integer'),
+        new OA\Property(property: 'errors', description: 'Строки, которые не записаны', type: 'array', items: new OA\Items(ref: '#/components/schemas/ImportIssue')),
+        new OA\Property(property: 'warnings', description: 'Записано, но с замечаниями', type: 'array', items: new OA\Items(ref: '#/components/schemas/ImportIssue')),
+        new OA\Property(property: 'failureReason', type: 'string', nullable: true),
+        new OA\Property(property: 'createdAt', type: 'string', format: 'date-time'),
+        new OA\Property(property: 'startedAt', type: 'string', format: 'date-time', nullable: true),
+        new OA\Property(property: 'finishedAt', type: 'string', format: 'date-time', nullable: true),
+    ],
+)]
+#[OA\Schema(
     schema: 'Error',
     properties: [new OA\Property(property: 'error', type: 'string', example: 'Товар не найден.')],
 )]

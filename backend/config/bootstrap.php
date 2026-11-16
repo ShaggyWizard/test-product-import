@@ -17,6 +17,7 @@ return (static function (): ContainerInterface {
     $builder = new ContainerBuilder();
     $builder->useAutowiring(true);
     $builder->addDefinitions(__DIR__ . '/container.php');
+    $builder->addDefinitions(__DIR__ . '/messenger.php');
 
     return $builder->build();
 })();

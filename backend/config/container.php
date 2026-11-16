@@ -3,6 +3,11 @@
 declare(strict_types=1);
 
 use App\Config\Settings;
+use App\Http\JsonResponder;
+use App\Http\RateLimitMiddleware;
+use App\Logging\StderrLogger;
+use App\Service\Import\ImportUploadValidator;
+use Psr\Log\LoggerInterface;
 use App\Entity\ImportJob;
 use App\Entity\Product;
 use App\Repository\ImportJobRepository;
@@ -23,6 +28,8 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\RateLimiter\Storage\CacheStorage;
 
 use function DI\factory;
 
@@ -74,6 +81,29 @@ return [
     }),
 
     ResponseFactoryInterface::class => factory(static fn (): ResponseFactoryInterface => new ResponseFactory()),
+
+    LoggerInterface::class => factory(static fn (): LoggerInterface => new StderrLogger()),
+
+    // Лимит на импорт: N загрузок за окно с одного IP. Хранилище — файловый кэш (запросы принимает один контейнер app).
+    'rate_limiter.import' => factory(static fn (Settings $s): RateLimiterFactory => new RateLimiterFactory(
+        [
+            'id' => 'import',
+            'policy' => 'sliding_window',
+            'limit' => $s->importRateLimit,
+            'interval' => $s->importRateInterval,
+        ],
+        new CacheStorage(new FilesystemAdapter('rate_limiter', 0, dirname(__DIR__) . '/var/cache')),
+    )),
+
+    RateLimitMiddleware::class => factory(static fn (ContainerInterface $c): RateLimitMiddleware => new RateLimitMiddleware(
+        $c->get('rate_limiter.import'),
+        $c->get(ResponseFactoryInterface::class),
+        $c->get(JsonResponder::class),
+    )),
+
+    ImportUploadValidator::class => factory(
+        static fn (Settings $s): ImportUploadValidator => new ImportUploadValidator($s->importMaxFileSize),
+    ),
 
     ImageDownloader::class => factory(static function (Settings $s): ImageDownloader {
         $http = new NoPrivateNetworkHttpClient(HttpClient::create([

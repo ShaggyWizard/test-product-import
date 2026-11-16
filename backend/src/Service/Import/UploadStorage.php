@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Import;
 
+use Psr\Http\Message\UploadedFileInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -22,16 +23,34 @@ final readonly class UploadStorage
      */
     public function store(string $sourcePath): string
     {
-        if (!is_dir($this->directory) && !mkdir($this->directory, 0o775, true) && !is_dir($this->directory)) {
-            throw new \RuntimeException('Не удалось создать каталог для загрузок.');
-        }
-
+        $this->ensureDirectory();
         $name = Uuid::v7()->toRfc4122() . '.xlsx';
         if (!copy($sourcePath, $this->path($name))) {
             throw new \RuntimeException('Не удалось сохранить файл импорта.');
         }
 
         return $name;
+    }
+
+    /**
+     * Переносит загруженный файл в хранилище под случайным именем.
+     *
+     * @return string имя файла внутри хранилища
+     */
+    public function storeUploaded(UploadedFileInterface $file): string
+    {
+        $this->ensureDirectory();
+        $name = Uuid::v7()->toRfc4122() . '.xlsx';
+        $file->moveTo($this->path($name));
+
+        return $name;
+    }
+
+    private function ensureDirectory(): void
+    {
+        if (!is_dir($this->directory) && !mkdir($this->directory, 0o775, true) && !is_dir($this->directory)) {
+            throw new \RuntimeException('Не удалось создать каталог для загрузок.');
+        }
     }
 
     public function path(string $name): string
