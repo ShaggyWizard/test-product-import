@@ -16,9 +16,7 @@ final readonly class DocsController
 {
     private const SWAGGER_UI = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14';
 
-    public function __construct(private Settings $settings)
-    {
-    }
+    public function __construct(private Settings $settings) {}
 
     public function spec(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {

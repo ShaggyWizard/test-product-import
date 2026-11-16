@@ -22,8 +22,7 @@ final readonly class ImportController
         private ImportJobRepository $jobs,
         private ImportJobPresenter $presenter,
         private JsonResponder $json,
-    ) {
-    }
+    ) {}
 
     #[OA\Post(
         path: '/api/import',

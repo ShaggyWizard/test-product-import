@@ -36,8 +36,7 @@ final class ImageDownloader
         private readonly HttpClientInterface $http,
         private readonly string $publicDir,
         private readonly int $maxBytes,
-    ) {
-    }
+    ) {}
 
     /**
      * paths — URL => путь относительно public/ (null — не скачалось); failures — URL => причина.

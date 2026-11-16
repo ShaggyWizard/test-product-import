@@ -18,6 +18,5 @@ final readonly class ProductFilter
         public ?string $name = null,
         public ?string $priceMin = null,
         public ?string $priceMax = null,
-    ) {
-    }
+    ) {}
 }

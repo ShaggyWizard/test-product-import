@@ -32,16 +32,16 @@ use function DI\factory;
  * и вызывает ImportMessageHandler.
  */
 return [
-    'messenger.transports' => factory(static fn (Settings $s): TransportLocator => new TransportLocator([
+    'messenger.transports' => factory(static fn(Settings $s): TransportLocator => new TransportLocator([
         // in-memory:// — для тестов: сообщения остаются в памяти, RabbitMQ не нужен.
-        'async' => static fn () => str_starts_with($s->messengerDsn, 'in-memory://')
+        'async' => static fn() => str_starts_with($s->messengerDsn, 'in-memory://')
             ? new InMemoryTransport()
             : (new AmqpTransportFactory())->createTransport($s->messengerDsn, [], new PhpSerializer()),
     ])),
 
     // Повторы при сбое обработчика: 3 попытки с паузой 1 с, 2 с, 4 с.
-    'messenger.retry_strategies' => factory(static fn (): TransportLocator => new TransportLocator([
-        'async' => static fn () => new MultiplierRetryStrategy(maxRetries: 3, delayMilliseconds: 1000, multiplier: 2),
+    'messenger.retry_strategies' => factory(static fn(): TransportLocator => new TransportLocator([
+        'async' => static fn() => new MultiplierRetryStrategy(maxRetries: 3, delayMilliseconds: 1000, multiplier: 2),
     ])),
 
     MessageBusInterface::class => factory(static function (ContainerInterface $c): MessageBusInterface {
@@ -52,7 +52,7 @@ return [
             new SendMessageMiddleware(new SendersLocator([ImportMessage::class => ['async']], $transports)),
             new HandleMessageMiddleware(new HandlersLocator([
                 // Обработчик создаётся лениво: API, который только отправляет сообщения, его не собирает.
-                ImportMessage::class => [static fn (ImportMessage $m) => $c->get(ImportMessageHandler::class)($m)],
+                ImportMessage::class => [static fn(ImportMessage $m) => $c->get(ImportMessageHandler::class)($m)],
             ])),
         ]);
     }),

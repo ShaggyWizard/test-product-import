@@ -3,16 +3,15 @@
 declare(strict_types=1);
 
 use App\Config\Settings;
+use App\Entity\ImportJob;
+use App\Entity\Product;
 use App\Http\JsonResponder;
 use App\Http\RateLimitMiddleware;
 use App\Logging\StderrLogger;
-use App\Service\Import\ImportUploadValidator;
-use Psr\Log\LoggerInterface;
-use App\Entity\ImportJob;
-use App\Entity\Product;
 use App\Repository\ImportJobRepository;
 use App\Repository\ProductRepository;
 use App\Service\Import\ImageDownloader;
+use App\Service\Import\ImportUploadValidator;
 use App\Service\Import\UploadStorage;
 use Doctrine\DBAL\Configuration as DbalConfiguration;
 use Doctrine\DBAL\Connection;
@@ -23,6 +22,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Log\LoggerInterface;
 use Slim\Psr7\Factory\ResponseFactory;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -34,7 +34,7 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 use function DI\factory;
 
 return [
-    Settings::class => factory(static fn (): Settings => Settings::fromEnv()),
+    Settings::class => factory(static fn(): Settings => Settings::fromEnv()),
 
     Connection::class => factory(static function (ContainerInterface $c): Connection {
         /** @var Settings $s */
@@ -43,7 +43,7 @@ return [
         // Служебную таблицу миграций не сравниваем со схемой сущностей.
         $config = new DbalConfiguration();
         $config->setSchemaAssetsFilter(
-            static fn (string|AbstractAsset $asset): bool => ($asset instanceof AbstractAsset ? $asset->getName() : $asset)
+            static fn(string|AbstractAsset $asset): bool => ($asset instanceof AbstractAsset ? $asset->getName() : $asset)
                 !== 'doctrine_migration_versions',
         );
 
@@ -80,12 +80,12 @@ return [
         return new EntityManager($connection, $config);
     }),
 
-    ResponseFactoryInterface::class => factory(static fn (): ResponseFactoryInterface => new ResponseFactory()),
+    ResponseFactoryInterface::class => factory(static fn(): ResponseFactoryInterface => new ResponseFactory()),
 
-    LoggerInterface::class => factory(static fn (): LoggerInterface => new StderrLogger()),
+    LoggerInterface::class => factory(static fn(): LoggerInterface => new StderrLogger()),
 
     // Лимит на импорт: N загрузок за окно с одного IP. Хранилище — файловый кэш (запросы принимает один контейнер app).
-    'rate_limiter.import' => factory(static fn (Settings $s): RateLimiterFactory => new RateLimiterFactory(
+    'rate_limiter.import' => factory(static fn(Settings $s): RateLimiterFactory => new RateLimiterFactory(
         [
             'id' => 'import',
             'policy' => 'sliding_window',
@@ -95,14 +95,14 @@ return [
         new CacheStorage(new FilesystemAdapter('rate_limiter', 0, dirname(__DIR__) . '/var/cache')),
     )),
 
-    RateLimitMiddleware::class => factory(static fn (ContainerInterface $c): RateLimitMiddleware => new RateLimitMiddleware(
+    RateLimitMiddleware::class => factory(static fn(ContainerInterface $c): RateLimitMiddleware => new RateLimitMiddleware(
         $c->get('rate_limiter.import'),
         $c->get(ResponseFactoryInterface::class),
         $c->get(JsonResponder::class),
     )),
 
     ImportUploadValidator::class => factory(
-        static fn (Settings $s): ImportUploadValidator => new ImportUploadValidator($s->importMaxFileSize),
+        static fn(Settings $s): ImportUploadValidator => new ImportUploadValidator($s->importMaxFileSize),
     ),
 
     ImageDownloader::class => factory(static function (Settings $s): ImageDownloader {
@@ -117,14 +117,20 @@ return [
     }),
 
     UploadStorage::class => factory(
-        static fn (): UploadStorage => new UploadStorage(dirname(__DIR__) . '/var/uploads'),
+        static fn(): UploadStorage => new UploadStorage(dirname(__DIR__) . '/var/uploads'),
     ),
 
     // Репозитории берём у EntityManager, чтобы Doctrine сама их собрала.
-    ProductRepository::class => factory(
-        static fn (EntityManagerInterface $em): ProductRepository => $em->getRepository(Product::class),
-    ),
-    ImportJobRepository::class => factory(
-        static fn (EntityManagerInterface $em): ImportJobRepository => $em->getRepository(ImportJob::class),
-    ),
+    ProductRepository::class => factory(static function (EntityManagerInterface $em): ProductRepository {
+        $repository = $em->getRepository(Product::class);
+        assert($repository instanceof ProductRepository);
+
+        return $repository;
+    }),
+    ImportJobRepository::class => factory(static function (EntityManagerInterface $em): ImportJobRepository {
+        $repository = $em->getRepository(ImportJob::class);
+        assert($repository instanceof ImportJobRepository);
+
+        return $repository;
+    }),
 ];

@@ -12,9 +12,7 @@ use Symfony\Component\Uid\Uuid;
  */
 final readonly class UploadStorage
 {
-    public function __construct(private string $directory)
-    {
-    }
+    public function __construct(private string $directory) {}
 
     /**
      * Копирует файл в хранилище под случайным именем: имя от пользователя в путь не попадает.

@@ -34,17 +34,17 @@ final class TestContainer
      */
     public static function build(array $overrides = []): ContainerInterface
     {
-        $config = dirname(__DIR__, 2) . '/config';
+        $config = \dirname(__DIR__, 2) . '/config';
 
         $builder = new ContainerBuilder();
         $builder->useAutowiring(true);
         $builder->addDefinitions($config . '/container.php');
         $builder->addDefinitions($config . '/messenger.php');
         $builder->addDefinitions([
-            LoggerInterface::class => factory(static fn (): LoggerInterface => new NullLogger()),
+            LoggerInterface::class => factory(static fn(): LoggerInterface => new NullLogger()),
             // Ссылка, где есть «broken», отвечает 404; остальные — PNG.
-            ImageDownloader::class => factory(static fn (): ImageDownloader => new ImageDownloader(
-                new MockHttpClient(static fn (string $method, string $url): MockResponse => str_contains($url, 'broken')
+            ImageDownloader::class => factory(static fn(): ImageDownloader => new ImageDownloader(
+                new MockHttpClient(static fn(string $method, string $url): MockResponse => str_contains($url, 'broken')
                     ? new MockResponse('', ['http_code' => 404])
                     : new MockResponse(self::PNG, ['response_headers' => ['content-type' => 'image/png']])),
                 self::mediaDir(),

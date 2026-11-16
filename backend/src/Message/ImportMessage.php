@@ -9,7 +9,5 @@ namespace App\Message;
  */
 final readonly class ImportMessage
 {
-    public function __construct(public string $jobId)
-    {
-    }
+    public function __construct(public string $jobId) {}
 }

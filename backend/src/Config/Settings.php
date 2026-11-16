@@ -26,8 +26,7 @@ final readonly class Settings
         public int $jwtTtl,
         public string $adminLogin,
         public string $adminPassword,
-    ) {
-    }
+    ) {}
 
     public static function fromEnv(): self
     {

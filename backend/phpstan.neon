@@ -1,0 +1,15 @@
+includes:
+    # Понимает маппинг Doctrine: id заполняет ORM, репозитории и QueryBuilder типизированы.
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+
+parameters:
+    # В задании требуется ≥ 5; держим строже.
+    level: 8
+    paths:
+        - src
+        - config
+        - tests
+        - public
+        - bin/console
+    tmpDir: var/cache/phpstan
+    treatPhpDocTypesAsCertain: false

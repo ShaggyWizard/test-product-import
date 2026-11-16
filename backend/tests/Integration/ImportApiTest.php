@@ -20,7 +20,7 @@ final class ImportApiTest extends ApiTestCase
         $tmp = tempnam(sys_get_temp_dir(), 'upload');
         copy(self::fixture($fixture), (string) $tmp);
 
-        return new UploadedFile((string) $tmp, $clientName, null, filesize((string) $tmp), \UPLOAD_ERR_OK);
+        return new UploadedFile((string) $tmp, $clientName, null, (int) filesize((string) $tmp), \UPLOAD_ERR_OK);
     }
 
     private function transport(): InMemoryTransport
@@ -68,7 +68,7 @@ final class ImportApiTest extends ApiTestCase
     {
         $tmp = (string) tempnam(sys_get_temp_dir(), 'upload');
         file_put_contents($tmp, 'not a spreadsheet');
-        $file = new UploadedFile($tmp, 'fake.xlsx', null, filesize($tmp), \UPLOAD_ERR_OK);
+        $file = new UploadedFile($tmp, 'fake.xlsx', null, (int) filesize($tmp), \UPLOAD_ERR_OK);
 
         $response = $this->request('POST', '/api/import', files: ['file' => $file]);
 

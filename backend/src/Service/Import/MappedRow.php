@@ -18,6 +18,5 @@ final readonly class MappedRow
         public ?string $externalCode,
         public array $errors,
         public array $warnings,
-    ) {
-    }
+    ) {}
 }

@@ -15,8 +15,7 @@ final readonly class HealthController
     public function __construct(
         private Connection $connection,
         private JsonResponder $json,
-    ) {
-    }
+    ) {}
 
     #[OA\Get(
         path: '/api/health',

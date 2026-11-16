@@ -17,8 +17,7 @@ final class ProductImporter
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ProductRepository $products,
-    ) {
-    }
+    ) {}
 
     /**
      * @param array<string, string|null> $imagePaths URL => локальный путь (null — не скачалось); картинки качаются до транзакции

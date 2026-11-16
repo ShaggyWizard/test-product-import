@@ -47,10 +47,10 @@ final class ProductPresenter
             'createdAt' => $product->getCreatedAt()->format(\DATE_ATOM),
             'updatedAt' => $product->getUpdatedAt()->format(\DATE_ATOM),
             'attributes' => array_values($product->getAttributes()->map(
-                static fn (ProductAttribute $a): array => ['id' => $a->getId(), 'key' => $a->getKey(), 'value' => $a->getValue()],
+                static fn(ProductAttribute $a): array => ['id' => $a->getId(), 'key' => $a->getKey(), 'value' => $a->getValue()],
             )->toArray()),
             'images' => array_values($product->getImages()->map(
-                fn (ProductImage $i): array => [
+                fn(ProductImage $i): array => [
                     'id' => $i->getId(),
                     'url' => $i->getUrl(),
                     'path' => $i->getPath(),

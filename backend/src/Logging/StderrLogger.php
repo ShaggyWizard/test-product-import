@@ -17,9 +17,7 @@ final class StderrLogger extends AbstractLogger
         LogLevel::ERROR => 4, LogLevel::CRITICAL => 5, LogLevel::ALERT => 6, LogLevel::EMERGENCY => 7,
     ];
 
-    public function __construct(private readonly string $minLevel = LogLevel::INFO)
-    {
-    }
+    public function __construct(private readonly string $minLevel = LogLevel::INFO) {}
 
     /**
      * @param array<string, mixed> $context

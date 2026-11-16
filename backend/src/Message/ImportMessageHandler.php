@@ -19,8 +19,7 @@ final readonly class ImportMessageHandler
         private EntityManagerInterface $em,
         private ImportService $import,
         private LoggerInterface $logger,
-    ) {
-    }
+    ) {}
 
     public function __invoke(ImportMessage $message): void
     {

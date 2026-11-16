@@ -7,6 +7,7 @@ use App\Http\ApiErrorMiddleware;
 use Psr\Container\ContainerInterface;
 use Slim\App;
 use Slim\Factory\AppFactory;
+use Slim\Handlers\ErrorHandler;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 
 /**
@@ -29,7 +30,10 @@ return static function (ContainerInterface $container): App {
     $app->add(ApiErrorMiddleware::class);
     $errors = $app->addErrorMiddleware($settings->isDev(), true, true);
     // Непредвиденные ошибки тоже в JSON, а не HTML-страницей Slim.
-    $errors->getDefaultErrorHandler()->forceContentType('application/json');
+    $handler = $errors->getDefaultErrorHandler();
+    if ($handler instanceof ErrorHandler) {
+        $handler->forceContentType('application/json');
+    }
 
     (require __DIR__ . '/routes.php')($app);
 

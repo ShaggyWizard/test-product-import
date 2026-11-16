@@ -26,8 +26,7 @@ final readonly class ProductController
         private ProductRequest $input,
         private ProductPresenter $presenter,
         private JsonResponder $json,
-    ) {
-    }
+    ) {}
 
     #[OA\Get(
         path: '/api/products',
@@ -50,12 +49,12 @@ final readonly class ProductController
         $filter = $this->input->filter($request->getQueryParams());
         $page = $this->products->search($filter);
 
-        $ids = array_map(static fn (Product $p): int => (int) $p->getId(), $page['items']);
+        $ids = array_map(static fn(Product $p): int => (int) $p->getId(), $page['items']);
         $thumbnails = $this->products->firstImages($ids);
 
         return $this->json->send($response, [
             'items' => array_map(
-                fn (Product $p): array => $this->presenter->listItem($p, $thumbnails[(int) $p->getId()] ?? null),
+                fn(Product $p): array => $this->presenter->listItem($p, $thumbnails[(int) $p->getId()] ?? null),
                 $page['items'],
             ),
             'total' => $page['total'],

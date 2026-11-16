@@ -23,8 +23,7 @@ final readonly class ApiErrorMiddleware implements MiddlewareInterface
     public function __construct(
         private ResponseFactoryInterface $responses,
         private JsonResponder $json,
-    ) {
-    }
+    ) {}
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

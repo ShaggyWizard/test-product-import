@@ -112,7 +112,7 @@ final class RowMapperTest extends TestCase
         $result = $this->mapper->map($this->row($overrides));
 
         self::assertNull($result->row);
-        self::assertContains($field, array_map(static fn ($e) => $e->field, $result->errors));
+        self::assertContains($field, array_map(static fn($e) => $e->field, $result->errors));
     }
 
     public function testMissingPurchasePriceGivesZeroDiscountAndWarning(): void

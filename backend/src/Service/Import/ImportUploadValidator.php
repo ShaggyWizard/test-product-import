@@ -20,9 +20,7 @@ final readonly class ImportUploadValidator
         'application/octet-stream',
     ];
 
-    public function __construct(private int $maxBytes)
-    {
-    }
+    public function __construct(private int $maxBytes) {}
 
     public function validate(?UploadedFileInterface $file): void
     {

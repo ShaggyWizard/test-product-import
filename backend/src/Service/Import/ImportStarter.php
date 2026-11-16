@@ -20,8 +20,7 @@ final readonly class ImportStarter
         private UploadStorage $storage,
         private EntityManagerInterface $em,
         private MessageBusInterface $bus,
-    ) {
-    }
+    ) {}
 
     public function start(?UploadedFileInterface $file): ImportJob
     {

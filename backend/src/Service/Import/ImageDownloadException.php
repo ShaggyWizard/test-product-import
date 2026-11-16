@@ -7,6 +7,4 @@ namespace App\Service\Import;
 /**
  * Картинку скачать не удалось; сообщение — причина для отчёта импорта.
  */
-final class ImageDownloadException extends \RuntimeException
-{
-}
+final class ImageDownloadException extends \RuntimeException {}

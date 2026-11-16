@@ -21,8 +21,7 @@ final readonly class RateLimitMiddleware implements MiddlewareInterface
         private RateLimiterFactory $limiters,
         private ResponseFactoryInterface $responses,
         private JsonResponder $json,
-    ) {
-    }
+    ) {}
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

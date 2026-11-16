@@ -23,6 +23,5 @@ final readonly class ParsedRow
         public string $discount,
         public array $attributes,
         public array $imageUrls,
-    ) {
-    }
+    ) {}
 }

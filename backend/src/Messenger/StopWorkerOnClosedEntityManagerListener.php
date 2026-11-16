@@ -18,8 +18,7 @@ final readonly class StopWorkerOnClosedEntityManagerListener implements EventSub
     public function __construct(
         private EntityManagerInterface $em,
         private LoggerInterface $logger,
-    ) {
-    }
+    ) {}
 
     public function onWorkerRunning(WorkerRunningEvent $event): void
     {

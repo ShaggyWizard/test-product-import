@@ -16,8 +16,7 @@ final class ProductService
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ProductRepository $products,
-    ) {
-    }
+    ) {}
 
     /**
      * @throws ProductConflictException товар с таким внешним кодом уже есть

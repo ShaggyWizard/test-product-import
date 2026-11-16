@@ -139,6 +139,4 @@ use OpenApi\Attributes as OA;
         ),
     ],
 )]
-final class Spec
-{
-}
+final class Spec {}

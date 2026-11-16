@@ -23,8 +23,7 @@ final class ImportService
         private readonly ProductImporter $importer,
         private readonly ImageDownloader $images,
         private readonly UploadStorage $storage,
-    ) {
-    }
+    ) {}
 
     public function run(string $jobId): ImportJob
     {

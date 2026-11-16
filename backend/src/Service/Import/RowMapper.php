@@ -32,9 +32,7 @@ final class RowMapper
     private const MAX_KEY = 255;
     private const MAX_URL = 2048;
 
-    public function __construct(private readonly DiscountCalculator $discounts)
-    {
-    }
+    public function __construct(private readonly DiscountCalculator $discounts) {}
 
     /**
      * @param list<string> $headers
@@ -47,7 +45,7 @@ final class RowMapper
 
         return array_values(array_filter(
             self::REQUIRED,
-            static fn (string $title, string $key): bool => !\in_array($key, $present, true),
+            static fn(string $title, string $key): bool => !\in_array($key, $present, true),
             \ARRAY_FILTER_USE_BOTH,
         ));
     }

@@ -20,6 +20,5 @@ final readonly class ProductData
         public ?string $price,
         public ?string $discount,
         public bool $hasDescription,
-    ) {
-    }
+    ) {}
 }

@@ -16,6 +16,5 @@ final readonly class Sheet
     public function __construct(
         public array $headers,
         public array $rows,
-    ) {
-    }
+    ) {}
 }

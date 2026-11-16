@@ -12,6 +12,5 @@ final readonly class RowIssue
     public function __construct(
         public ?string $field,
         public string $message,
-    ) {
-    }
+    ) {}
 }

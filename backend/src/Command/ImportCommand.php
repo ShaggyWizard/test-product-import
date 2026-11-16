@@ -64,7 +64,7 @@ final class ImportCommand extends Command
                 $io->section($title);
                 $io->table(
                     ['Строка', 'Внешний код', 'Столбец', 'Что не так'],
-                    array_map(static fn (array $i): array => [$i['row'], $i['externalCode'] ?? '', $i['field'] ?? '', $i['message']], $issues),
+                    array_map(static fn(array $i): array => [$i['row'], $i['externalCode'] ?? '', $i['field'] ?? '', $i['message']], $issues),
                 );
             }
         }

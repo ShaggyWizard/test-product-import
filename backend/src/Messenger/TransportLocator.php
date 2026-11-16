@@ -19,15 +19,12 @@ final class TransportLocator implements ContainerInterface
     /**
      * @param array<string, \Closure(): object> $factories
      */
-    public function __construct(private readonly array $factories)
-    {
-    }
+    public function __construct(private readonly array $factories) {}
 
     public function get(string $id): object
     {
         if (!isset($this->factories[$id])) {
-            throw new class(\sprintf('Transport "%s" is not configured.', $id)) extends \InvalidArgumentException implements NotFoundExceptionInterface {
-            };
+            throw new class (\sprintf('Transport "%s" is not configured.', $id)) extends \InvalidArgumentException implements NotFoundExceptionInterface {};
         }
 
         return $this->resolved[$id] ??= ($this->factories[$id])();
