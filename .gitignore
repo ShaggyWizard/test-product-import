@@ -1,0 +1,11 @@
+.env
+backend/vendor/
+backend/var/
+backend/public/media/
+backend/.phpunit.cache/
+backend/.php-cs-fixer.cache
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+test-results/
+playwright-report/

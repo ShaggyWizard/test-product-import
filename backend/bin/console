@@ -1,0 +1,37 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
+use Doctrine\Migrations\Configuration\Migration\PhpFile;
+use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Tools\Console\ConsoleRunner as MigrationsRunner;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Console\ConsoleRunner as OrmRunner;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Console\Application;
+
+/** @var ContainerInterface $container */
+$container = require dirname(__DIR__) . '/config/bootstrap.php';
+
+/** @var EntityManagerInterface $em */
+$em = $container->get(EntityManagerInterface::class);
+
+$console = new Application('product-import');
+
+// doctrine:migrations:* и orm:*
+$dependencyFactory = DependencyFactory::fromEntityManager(
+    new PhpFile(dirname(__DIR__) . '/config/migrations.php'),
+    new ExistingEntityManager($em),
+);
+MigrationsRunner::addCommands($console, $dependencyFactory);
+OrmRunner::addCommands($console, new SingleManagerProvider($em));
+
+// Команды приложения (messenger:consume, app:seed и т.д.)
+foreach ((require dirname(__DIR__) . '/config/commands.php') as $commandClass) {
+    $console->add($container->get($commandClass));
+}
+
+$console->run();
